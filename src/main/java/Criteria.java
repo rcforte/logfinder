@@ -1,26 +1,18 @@
 import java.util.*;
 
 public enum Criteria {
-    AND() {
-        @Override
-        public boolean find(Map<String, Boolean> wordsFound) {
-            boolean found = true;
-            for (Boolean b : wordsFound.values()) {
-                found = found && b;
-            }
-            return found; 
-        }
-    }, 
-    OR() {
-        @Override
-        public boolean find(Map<String, Boolean> wordsFound) {
-            boolean found = false;
-            for (Boolean b : wordsFound.values()) {
-                found = found || b;
-            }
-            return found; 
-        }
-    };
+  AND() {
+    @Override
+    public boolean find(Map<String, Boolean> wordsFound) {
+      return wordsFound.values().stream().allMatch(v -> v == true);
+    }
+  }, 
+  OR() {
+    @Override
+    public boolean find(Map<String, Boolean> wordsFound) {
+      return wordsFound.values().stream().anyMatch(v -> v == true);
+    }
+  };
 
-    public abstract boolean find(Map<String, Boolean> wordsFound);
+  public abstract boolean find(Map<String, Boolean> wordsFound);
 }
