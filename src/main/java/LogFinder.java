@@ -23,23 +23,14 @@ public class LogFinder {
   }
 
   public List<File> find(List<String> words, Criteria criteria) throws IOException {
-    List<File> result = new ArrayList<>();
-    for (String path : paths) {
-      List<File> files = getFiles(path);
-      for (File file : files) {
-        if (findInFile(file, words, criteria)) {
-          result.add(file);
-        }
-      }
-    }
-    return result;
+    return paths.stream()
+                .flatMap(path -> getFiles(path).stream())
+                .filter(file -> findInFile(file, words, criteria))
+                .collect(Collectors.toList());
   }
 
-  public boolean findInFile(File file, List<String> words, Criteria criteria) throws IOException {
-    Map<String, Boolean> wordsFound = new HashMap<>();
-    for (String word : words) {
-      wordsFound.put(word, false);
-    }
+  public boolean findInFile(File file, List<String> words, Criteria criteria) {
+    Map<String, Boolean> wordsFound = words.stream().collect(Collectors.toMap(word -> word, word -> false));
     try (BufferedReader in = new BufferedReader(new FileReader(file))) {
       String line;
       while ((line = in.readLine()) != null) {
@@ -49,6 +40,8 @@ public class LogFinder {
           }
         }
       }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
     return criteria.find(wordsFound);
   }
@@ -57,13 +50,14 @@ public class LogFinder {
     return line.indexOf(word) != -1;
   }
 
-  public List<File> getFiles(String path) throws IOException {
+  public List<File> getFiles(String path) {
     List<File> result = new ArrayList<>();
-    Path dir = Paths.get(path);
-    try (DirectoryStream<Path> files = Files.newDirectoryStream(dir, extensions)) {
+    try (DirectoryStream<Path> files = Files.newDirectoryStream(Paths.get(path), extensions)) {
       for (Path file : files) {
         result.add(file.toFile());
       }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
     return result;
   }
