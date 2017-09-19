@@ -30,7 +30,8 @@ public class LogFinder {
   }
 
   public boolean findInFile(File file, List<String> words, Criteria criteria) {
-    Map<String, Boolean> wordsFound = words.stream().collect(Collectors.toMap(word -> word, word -> false));
+    Map<String, Boolean> wordsFound = words.stream().collect(
+        Collectors.toMap(word -> word, word -> false));
     try (BufferedReader in = new BufferedReader(new FileReader(file))) {
       String line;
       while ((line = in.readLine()) != null) {
